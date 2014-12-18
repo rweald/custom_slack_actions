@@ -33,28 +33,24 @@ func handleInboundSlackAction(w http.ResponseWriter, r *http.Request) {
 
 	r.ParseForm()
 	cs := r.Form["command"]
-
 	if len(cs) < 1 {
 		http.Error(w, "Must specify a command", http.StatusNotFound)
 		return
 	}
 
 	requested_action := cs[0]
-
 	if requested_action == "" {
 		http.Error(w, "Must specify a command", http.StatusNotFound)
 		return
 	}
 
 	sr, err := triggerActions(requested_action)
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	resp, err := json.Marshal(sr)
-
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -62,6 +58,12 @@ func handleInboundSlackAction(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(resp)
+}
+
+func RunSlackActionServer() {
+	fmt.Println("Server Starting")
+	http.HandleFunc("/", handleInboundSlackAction)
+	log.Fatal(http.ListenAndServe(":3000", nil))
 }
 
 func triggerActions(requestedAction string) (*SlackResponse, error) {
@@ -76,10 +78,4 @@ func triggerActions(requestedAction string) (*SlackResponse, error) {
 		}
 	}
 	return nil, errors.New("No matching commands found")
-}
-
-func RunSlackActionServer() {
-	fmt.Println("Server Starting")
-	http.HandleFunc("/", handleInboundSlackAction)
-	log.Fatal(http.ListenAndServe(":3000", nil))
 }
