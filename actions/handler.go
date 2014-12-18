@@ -2,6 +2,7 @@ package actions
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -45,20 +46,11 @@ func handleInboundSlackAction(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var sr *SlackResponse = nil
+	sr, err := triggerActions(requested_action)
 
-	for k, v := range commands {
-		if k == requested_action {
-			err, s := (*v).HandleAction(&SlackMessage{})
-
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusInternalServerError)
-				return
-			}
-
-			sr = s
-			break
-		}
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	resp, err := json.Marshal(sr)
@@ -70,6 +62,20 @@ func handleInboundSlackAction(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(resp)
+}
+
+func triggerActions(requestedAction string) (*SlackResponse, error) {
+	for k, v := range commands {
+		if k == requestedAction {
+			err, s := (*v).HandleAction(&SlackMessage{})
+
+			if err != nil {
+				return nil, err
+			}
+			return s, nil
+		}
+	}
+	return nil, errors.New("No matching commands found")
 }
 
 func RunSlackActionServer() {
