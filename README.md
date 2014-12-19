@@ -18,7 +18,7 @@ Adding actions is easy. Simply implement the ```SlackAction``` interface that ca
 
 ##ToDo
 
-[] Add Makefile for compiling & installing binary. 
-[] Add testing for main server and existing actions
-[] Add some useful actions
+-[ ] Add Makefile for compiling & installing binary. 
+-[ ] Add testing for main server and existing actions
+-[ ] Add some useful actions
 
