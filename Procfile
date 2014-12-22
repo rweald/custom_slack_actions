@@ -1,1 +1,1 @@
-web: ./slack_actions
+web: slack_actions
