@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 )
 
 type SlackMessage struct {
@@ -63,7 +64,11 @@ func handleInboundSlackAction(w http.ResponseWriter, r *http.Request) {
 func RunSlackActionServer() {
 	fmt.Println("Server Starting")
 	http.HandleFunc("/", handleInboundSlackAction)
-	log.Fatal(http.ListenAndServe(":3000", nil))
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "3000"
+	}
+	log.Fatal(http.ListenAndServe(":"+port, nil))
 }
 
 func triggerActions(requestedAction string) (*SlackResponse, error) {
